@@ -98,11 +98,12 @@ NanoPlot --huge -t 6 --tsv_stats --only-report --fastq $i
 awk -F " " '{print $0}' NanoStats.txt > NanoStats.csv
 rm $i
 cd ..
-cp ../../pachet_16S_unclassified_recovery/nanoplot_analysis.R ./
 done
 
+cp ../../pachet_16S_unclassified_recovery/nanoplot_analysis.R ./
 Rscript nanoplot_analysis.R
 rm nanoplot_analysis.R
+rm *.fastq
 
 echo "Preparing Epi2ME folders ..."
 cd .. 
@@ -116,6 +117,7 @@ mkdir "epi2me_${i%.fastq}"
 cp $i "epi2me_${i%.fastq}"
 done
 
+rm *.fastq
 cd ..
 
 echo "Finished !"
