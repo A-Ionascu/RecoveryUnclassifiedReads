@@ -54,11 +54,11 @@ seqtk subseq ../unclassified/unclassified.fastq $i > ${i%.lst}".fastq"
 done
 
 echo "Creating concatenated reads ..."
-mkdir ../concatenated
-cp *.fastq ../concatenated
+mkdir ../concatenated_reads
+cp *.fastq ../concatenated_reads
 cd ..
-cp *.fastq concatenated
-cd concatenated
+cp *.fastq concatenated_reads
+cd concatenated_reads
 
 
 for i in SQK*.fastq 
@@ -85,31 +85,87 @@ cp unclassified.fastq ..
 
 echo "Making NanoPlot analysis ..."
 cd ..
-mkdir nanoplot
-cp concatenated/*.fastq nanoplot
-cd nanoplot
+cd concatenated_reads
+#mkdir nanoplot
+#cp concatenated/*.fastq nanoplot
+#cd nanoplot
 
 for i in *.fastq
 do
 mkdir "nanoplot_${i%.fastq}"
 cp $i "nanoplot_${i%.fastq}"
 cd "nanoplot_${i%.fastq}"
+row_count=$(wc -l < "$i")
+if [ "$row_count" -le 5 ]; then
+    cd ..
+    continue
+fi
 NanoPlot --huge -t 6 --tsv_stats --only-report --fastq $i
 awk -F " " '{print $0}' NanoStats.txt > NanoStats.csv
 rm $i
 cd ..
 done
 
-cp ../../pachet_16S_unclassified_recovery/nanoplot_analysis.R ./
+cp ../RecoveryUnclassifiedReads-main/nanoplot_analysis.R ./
+Rscript nanoplot_analysis.R
+rm nanoplot_analysis.R
+#rm *.fastq
+
+
+cd ../recovered_reads
+for i in *.fastq
+do
+mkdir "nanoplot_unclassified_${i%.fastq}"
+cp $i "nanoplot_unclassified_${i%.fastq}"
+cd "nanoplot_unclassified_${i%.fastq}"
+row_count=$(wc -l < "$i")
+if [ "$row_count" -le 5 ]; then
+    cd ..
+    continue
+fi
+NanoPlot --huge -t 6 --tsv_stats --only-report --fastq $i
+awk -F " " '{print $0}' NanoStats.txt > NanoStats.csv
+#rm $i
+cd ..
+done
+
+cp ../RecoveryUnclassifiedReads-main/nanoplot_analysis.R ./
+Rscript nanoplot_analysis.R
+rm nanoplot_analysis.R
+# rm *.fastq
+
+
+cd ..
+mkdir original_reads
+cp *.fastq original_reads
+cd original_reads
+for i in *.fastq
+do
+mkdir "nanoplot_original_${i%.fastq}"
+cp $i "nanoplot_original_${i%.fastq}"
+cd "nanoplot_original_${i%.fastq}"
+row_count=$(wc -l < "$i")
+if [ "$row_count" -le 5 ]; then
+    cd ..
+    continue
+fi
+NanoPlot --huge -t 6 --tsv_stats --only-report --fastq $i
+awk -F " " '{print $0}' NanoStats.txt > NanoStats.csv
+#rm $i
+cd ..
+done
+
+cp ../RecoveryUnclassifiedReads-main/nanoplot_analysis.R ./
 Rscript nanoplot_analysis.R
 rm nanoplot_analysis.R
 rm *.fastq
 
+
 echo "Preparing Epi2ME folders ..."
 cd .. 
-mkdir epi2me
-cp concatenated/*.fastq epi2me
-cd epi2me
+mkdir epi2me_input
+cp concatenated_reads/*.fastq epi2me_input
+cd epi2me_input
 
 for i in *.fastq
 do
