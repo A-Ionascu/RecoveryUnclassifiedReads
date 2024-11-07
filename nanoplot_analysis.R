@@ -25,7 +25,8 @@ for(d in directories){
   dir <- gsub("./","",d)
   path <- file.path(mainDir,dir)
   setwd(path)
-
+  
+  if(any(list.files() == "NanoStats.csv")){
   nanoplot <- readr::read_tsv("NanoStats.csv", col_names = TRUE, show_col_types = FALSE)
   nanoplot <- as.data.frame(nanoplot)
 
@@ -56,7 +57,7 @@ for(d in directories){
                                   pattern = "(?<=\\().*(?=\\%)")
 
   table <- cbind(table, data)
-  
+  }
   setwd(mainDir)
 }
 
